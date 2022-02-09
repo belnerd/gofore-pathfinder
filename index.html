@@ -24,6 +24,14 @@
       }
     }
 
+    // Determine the correct line break for users OS
+    function getLinebreak() {
+      if (navigator.userAgent.indexOf('Windows') != -1) {
+        return '\r\n';
+      }
+      return '\n';
+    }
+
     // Calculate steps from S to E according to defined rules
     function calculateRoute() {
       // Find starting point
@@ -76,13 +84,14 @@
             break;
         }
       }
-      return steps
+      return steps;
     }
 
     function openFile() {
       const content = document.querySelector('.content');
       const [file] = document.querySelector('input[type=file]').files;
       const reader = new FileReader();
+      const linebreak = getLinebreak();
       let mapCode;
       let map = new Array();
 
@@ -93,9 +102,9 @@
           // Get the contents of the file
           map = reader.result;
           // Get the first line from the contents, should be the map code
-          mapCode = map.split('\r\n', 1);
-          // Split map string into 2D array by line breaks (Windows txt files)
-          mapArray = map.split('\r\n');
+          mapCode = map.split(linebreak, 1);
+          // Split map string into 2D array by line breaks
+          mapArray = map.split(linebreak);
           content.textContent = `The answer is: ${mapCode}:${calculateRoute()}`;
         },
         false
