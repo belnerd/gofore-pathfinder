@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gofore pre-assignment</title>
+  </head>
+  <body>
+    <h2>Choose a text file containing the map</h2>
+    <input type="file" onchange="openFile()" /><br />
+    <p class="content"></p>
+  </body>
+  <script>
+    let mapArray = new Array();
+
+    // Find index of s from a 2D array arr
+    function getIndexOf(arr, s) {
+      for (let i = 0; i < arr.length; i++) {
+        let index = arr[i].indexOf(s);
+        if (index > -1) {
+          return [i, index];
+        }
+      }
+    }
+
+    // Calculate steps from S to E according to defined rules
+    function calculateRoute() {
+      // Find starting point
+      let index = getIndexOf(mapArray, 'S');
+      let steps = 0;
+      let direction = 'UP';
+      let currentChar;
+      // Function to "move" the robot
+      const moveRobot = () => {
+        currentChar = mapArray[index[0]][index[1]];
+        steps++;
+      };
+
+      // Loop until 'E' found
+      while (currentChar !== 'E') {
+        // Check if next charcter in current direction is an obstacle (#) or open (anything else)
+        // Move robot (S) in current direction in a 2D array or turn right if going to hit an obstacle
+        switch (direction) {
+          case 'UP':
+            if (mapArray[index[0] - 1][index[1]] === '#') {
+              direction = 'RIGHT';
+            } else {
+              index = [index[0] - 1, index[1]];
+              moveRobot();
+            }
+            break;
+          case 'RIGHT':
+            if (mapArray[index[0]][index[1] + 1] === '#') {
+              direction = 'DOWN';
+            } else {
+              index = [index[0], index[1] + 1];
+              moveRobot();
+            }
+            break;
+          case 'DOWN':
+            if (mapArray[index[0] + 1][index[1]] === '#') {
+              direction = 'LEFT';
+            } else {
+              index = [index[0] + 1, index[1]];
+              moveRobot();
+            }
+            break;
+          case 'LEFT':
+            if (mapArray[index[0]][index[1] - 1] === '#') {
+              direction = 'UP';
+            } else {
+              index = [index[0], index[1] - 1];
+              moveRobot();
+            }
+            break;
+        }
+      }
+      return steps
+    }
+
+    function openFile() {
+      const content = document.querySelector('.content');
+      const [file] = document.querySelector('input[type=file]').files;
+      const reader = new FileReader();
+      let mapCode;
+      let map = new Array();
+
+      // Transform data from the text file user has selected that should contain map copied from the assignment page
+      reader.addEventListener(
+        'load',
+        () => {
+          // Get the contents of the file
+          map = reader.result;
+          // Get the first line from the contents, should be the map code
+          mapCode = map.split('\r\n', 1);
+          // Split map string into 2D array by line breaks (Windows txt files)
+          mapArray = map.split('\r\n');
+          content.textContent = `The answer is: ${mapCode}:${calculateRoute()}`;
+        },
+        false
+      );
+      if (file) {
+        reader.readAsText(file);
+      }
+    }
+  </script>
+</html>
